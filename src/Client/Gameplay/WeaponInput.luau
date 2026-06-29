@@ -28,6 +28,83 @@ local ReloadWeaponRemote = Remotes:WaitForChild("ReloadWeapon") :: RemoteEvent
 local WeaponInput = {}
 
 --[[
+	Creates a visible bullet tracer from camera to hit point (CLIENT-SIDE, instant feedback).
+]]
+local function createClientTracer(origin: Vector3, direction: Vector3)
+	-- Do a client-side raycast to find where the bullet would hit
+	local rayParams = RaycastParams.new()
+	rayParams.FilterType = Enum.RaycastFilterType.Exclude
+	local character = player.Character
+	if character then
+		rayParams.FilterDescendantsInstances = {character}
+	end
+	
+	local result = workspace:Raycast(origin, direction * 200, rayParams)
+	local endPos = if result then result.Position else (origin + direction * 200)
+	
+	-- Create bright yellow tracer beam
+	local dist = (endPos - origin).Magnitude
+	local tracer = Instance.new("Part")
+	tracer.Name = "ClientTracer"
+	tracer.Anchored = true
+	tracer.CanCollide = false
+	tracer.CanTouch = false
+	tracer.CanQuery = false
+	tracer.Material = Enum.Material.Neon
+	tracer.Color = Color3.fromRGB(255, 255, 0)
+	tracer.Size = Vector3.new(0.2, 0.2, dist)
+	tracer.CFrame = CFrame.lookAt(origin, endPos) * CFrame.new(0, 0, -dist/2)
+	tracer.Transparency = 0
+	tracer.Parent = workspace
+	
+	-- Red hit spark at impact point
+	if result then
+		local spark = Instance.new("Part")
+		spark.Name = "HitSpark"
+		spark.Anchored = true
+		spark.CanCollide = false
+		spark.CanTouch = false
+		spark.Material = Enum.Material.Neon
+		spark.Color = Color3.fromRGB(255, 50, 0)
+		spark.Size = Vector3.new(1.5, 1.5, 1.5)
+		spark.Shape = Enum.PartType.Ball
+		spark.CFrame = CFrame.new(result.Position)
+		spark.Parent = workspace
+		
+		task.delay(0.5, function()
+			if spark.Parent then spark:Destroy() end
+		end)
+	end
+	
+	-- Remove tracer after 0.3 seconds
+	task.delay(0.3, function()
+		if tracer.Parent then tracer:Destroy() end
+	end)
+end
+
+--[[
+	Plays a gunshot sound from the character.
+]]
+local function playGunSound()
+	local character = player.Character
+	if not character then return end
+	local rootPart = character:FindFirstChild("HumanoidRootPart")
+	if not rootPart then return end
+	
+	local sound = Instance.new("Sound")
+	sound.SoundId = "rbxassetid://168143115" -- Generic gunshot sound
+	sound.Volume = 0.8
+	sound.PlaybackSpeed = 1.2
+	sound.Parent = rootPart
+	sound:Play()
+	
+	-- Cleanup after sound finishes
+	sound.Ended:Connect(function()
+		sound:Destroy()
+	end)
+end
+
+--[[
 	Fires the weapon using camera position and look direction.
 	Called when the player clicks/taps while holding the tool.
 ]]
@@ -39,7 +116,11 @@ local function fireWeapon()
 	local aimOrigin = camera.CFrame.Position
 	local aimDirection = camera.CFrame.LookVector
 
-	print("[WeaponInput] Firing! Origin:", aimOrigin, "Direction:", aimDirection)
+	-- Instant client-side feedback: tracer + sound
+	createClientTracer(aimOrigin, aimDirection)
+	playGunSound()
+
+	-- Send to server for actual damage calculation
 	FireWeaponRemote:FireServer(aimOrigin, aimDirection)
 end
 
