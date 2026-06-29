@@ -1,0 +1,16 @@
+# Roblox
+*.rbxlx
+*.rbxl
+*.rbxm
+*.rbxmx
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Toolchain
+/aftman.toml
+/.gitkeep
+
+# IDE
+.vscode/
