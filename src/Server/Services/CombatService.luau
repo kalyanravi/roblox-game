@@ -49,21 +49,11 @@ local playerStates: { [Player]: PlayerCombatState } = {}
 -- RemoteEvents
 ----------------------------------------------------------------------
 
--- Create RemoteEvents in ReplicatedStorage for client-server communication
-local function getOrCreateRemoteEvent(name: string): RemoteEvent
-	local existing = ReplicatedStorage:FindFirstChild(name)
-	if existing and existing:IsA("RemoteEvent") then
-		return existing :: RemoteEvent
-	end
-	local remote = Instance.new("RemoteEvent")
-	remote.Name = name
-	remote.Parent = ReplicatedStorage
-	return remote
-end
-
-local FireWeaponRemote = getOrCreateRemoteEvent("FireWeapon")
-local ReloadWeaponRemote = getOrCreateRemoteEvent("ReloadWeapon")
-local DamageIndicatorRemote = getOrCreateRemoteEvent("DamageIndicator")
+-- Get RemoteEvents from the Remotes folder (created by init.server.luau)
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local FireWeaponRemote = Remotes:WaitForChild("FireWeapon") :: RemoteEvent
+local ReloadWeaponRemote = Remotes:WaitForChild("ReloadWeapon") :: RemoteEvent
+local DamageIndicatorRemote = Remotes:WaitForChild("DamageIndicator") :: RemoteEvent
 
 ----------------------------------------------------------------------
 -- BindableEvent for kill registration (other systems listen to this)

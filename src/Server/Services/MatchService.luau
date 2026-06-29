@@ -123,6 +123,9 @@ end
 
 --[[ Match Timer ]]
 
+-- Forward declare MatchService so the timer can call endMatch
+local MatchService = {}
+
 local function startMatchTimer(matchId: string)
 	local timerThread = task.spawn(function()
 		local match = activeMatches[matchId]
@@ -151,8 +154,6 @@ local function startMatchTimer(matchId: string)
 end
 
 --[[ MatchService Module ]]
-
-local MatchService = {}
 
 --[[
 	Creates a new match session with the given configuration.
