@@ -373,8 +373,10 @@ end
 FireWeaponRemote.OnServerEvent:Connect(function(player: Player, aimOrigin: any, aimDirection: any)
 	-- Type validation
 	if typeof(aimOrigin) ~= "Vector3" or typeof(aimDirection) ~= "Vector3" then
+		warn("[CombatService] Invalid fire args from", player.Name)
 		return
 	end
+	print("[CombatService] Fire received from", player.Name)
 	CombatService.handleFireRequest(player, aimOrigin, aimDirection)
 end)
 

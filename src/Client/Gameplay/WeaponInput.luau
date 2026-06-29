@@ -39,6 +39,7 @@ local function fireWeapon()
 	local aimOrigin = camera.CFrame.Position
 	local aimDirection = camera.CFrame.LookVector
 
+	print("[WeaponInput] Firing! Origin:", aimOrigin, "Direction:", aimDirection)
 	FireWeaponRemote:FireServer(aimOrigin, aimDirection)
 end
 
