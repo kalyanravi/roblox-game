@@ -916,8 +916,11 @@ applyAudioSettings = function()
 	local musicGroup = SoundService:FindFirstChild("Music") :: SoundGroup?
 	local voiceGroup = SoundService:FindFirstChild("VoiceChat") :: SoundGroup?
 
-	-- Master volume applies to SoundService.Volume directly
-	SoundService.Volume = currentSettings.audio.master / 100
+	-- Master volume applies to SoundService groups or RolloffScale as fallback
+	local masterVolume = currentSettings.audio.master / 100
+	pcall(function()
+		(SoundService :: any).Volume = masterVolume
+	end)
 
 	if sfxGroup then
 		sfxGroup.Volume = currentSettings.audio.sfx / 100
@@ -931,7 +934,9 @@ applyAudioSettings = function()
 
 	-- Fallback: if no groups, just apply master to SoundService
 	if not masterGroup and not sfxGroup and not musicGroup then
-		SoundService.Volume = currentSettings.audio.master / 100
+		pcall(function()
+			(SoundService :: any).Volume = currentSettings.audio.master / 100
+		end)
 	end
 end
 

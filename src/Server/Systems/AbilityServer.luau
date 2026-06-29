@@ -227,7 +227,7 @@ end
 ----------------------------------------------------------------------
 
 --- Dash: Burst of speed in movement direction for 0.3s using BodyVelocity.
-function AbilityServer._applyDash(player: Player, params: AbilityDefinition["params"]): ()
+function AbilityServer._applyDash(player: Player, params: any): ()
 	local character = player.Character
 	if not character then
 		return
@@ -263,7 +263,7 @@ function AbilityServer._applyDash(player: Player, params: AbilityDefinition["par
 end
 
 --- Heal: Restores 30% health over 3 seconds using task.spawn loop.
-function AbilityServer._applyHeal(player: Player, params: AbilityDefinition["params"]): ()
+function AbilityServer._applyHeal(player: Player, params: any): ()
 	local character = player.Character
 	if not character then
 		return
@@ -299,7 +299,7 @@ function AbilityServer._applyHeal(player: Player, params: AbilityDefinition["par
 end
 
 --- Grapple: BodyPosition toward aimed surface (up to 100 stud range).
-function AbilityServer._applyGrapple(player: Player, params: AbilityDefinition["params"]): ()
+function AbilityServer._applyGrapple(player: Player, params: any): ()
 	local character = player.Character
 	if not character then
 		return
@@ -360,7 +360,7 @@ function AbilityServer._applyGrapple(player: Player, params: AbilityDefinition["
 end
 
 --- Shield: Temporary ForceField or damage absorption (50 HP buffer) for 5 seconds.
-function AbilityServer._applyShield(player: Player, params: AbilityDefinition["params"]): ()
+function AbilityServer._applyShield(player: Player, params: any): ()
 	local character = player.Character
 	if not character then
 		return
@@ -408,7 +408,7 @@ function AbilityServer._applyShield(player: Player, params: AbilityDefinition["p
 end
 
 --- SpeedBoost: 50% move speed increase for 3 seconds.
-function AbilityServer._applySpeedBoost(player: Player, params: AbilityDefinition["params"]): ()
+function AbilityServer._applySpeedBoost(player: Player, params: any): ()
 	local character = player.Character
 	if not character then
 		return

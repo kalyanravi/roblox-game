@@ -17,17 +17,27 @@ local Constants = require(Shared:WaitForChild("Constants"))
 -- Service References (loaded lazily to avoid circular require issues)
 ----------------------------------------------------------------------
 
-local ServerScriptService = game:GetService("ServerScriptService")
-local Server = ServerScriptService:WaitForChild("Server")
-local Services = Server:WaitForChild("Services")
-local Systems = Server:WaitForChild("Systems")
+local CombatService: any = nil
+local EconomyService: any = nil
+local ChestService: any = nil
+local MasteryService: any = nil
+local ProgressionService: any = nil
+local AbilityServer: any = nil
 
-local CombatService = require(Services:WaitForChild("CombatService"))
-local EconomyService = require(Services:WaitForChild("EconomyService"))
-local ChestService = require(Services:WaitForChild("ChestService"))
-local MasteryService = require(Services:WaitForChild("MasteryService"))
-local ProgressionService = require(Services:WaitForChild("ProgressionService"))
-local AbilityServer = require(Systems:WaitForChild("AbilityServer"))
+local function getServices()
+	if CombatService then return end
+	local ServerScriptService = game:GetService("ServerScriptService")
+	local Server = ServerScriptService:WaitForChild("Server")
+	local Services = Server:WaitForChild("Services")
+	local Systems = Server:WaitForChild("Systems")
+
+	CombatService = require(Services:WaitForChild("CombatService"))
+	EconomyService = require(Services:WaitForChild("EconomyService"))
+	ChestService = require(Services:WaitForChild("ChestService"))
+	MasteryService = require(Services:WaitForChild("MasteryService"))
+	ProgressionService = require(Services:WaitForChild("ProgressionService"))
+	AbilityServer = require(Systems:WaitForChild("AbilityServer"))
+end
 
 ----------------------------------------------------------------------
 -- Types
@@ -250,6 +260,7 @@ end
 --- Collects state from all services and persists as a single blob.
 --- Returns true on success, false on failure.
 function DataPersistenceService.savePlayerData(player: Player): boolean
+	getServices()
 	local cachedData = playerDataCache[player]
 	if not cachedData then
 		return false
@@ -288,6 +299,7 @@ end
 
 --- Distributes loaded data to all dependent services.
 local function distributeDataToServices(player: Player, data: PlayerSaveData): ()
+	getServices()
 	-- Economy: set balance and inventory
 	EconomyService.setBalance(player, data.coins, data.gems)
 	EconomyService.setInventory(player, {

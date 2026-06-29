@@ -224,7 +224,10 @@ local function createMovingDummy(position: Vector3, railDirection: Vector3): Dum
 	local startPos = position
 	local endPos = position + (railDirection.Unit * RAIL_LENGTH)
 
-	local function tweenToEnd()
+	local tweenToEnd
+	local tweenToStart
+
+	tweenToEnd = function()
 		if not model or not model.Parent then
 			return
 		end
@@ -233,14 +236,12 @@ local function createMovingDummy(position: Vector3, railDirection: Vector3): Dum
 		activeTweens[model] = tween
 
 		tween.Completed:Connect(function()
-			-- Move head to match
 			head.Position = endPos + Vector3.new(0, 2, 0)
 			tweenToStart()
 		end)
 
 		tween:Play()
 
-		-- Update head position during tween
 		task.spawn(function()
 			while tween.PlaybackState == Enum.PlaybackState.Playing do
 				head.Position = torso.Position + Vector3.new(0, 2, 0)
@@ -249,7 +250,7 @@ local function createMovingDummy(position: Vector3, railDirection: Vector3): Dum
 		end)
 	end
 
-	local function tweenToStart()
+	tweenToStart = function()
 		if not model or not model.Parent then
 			return
 		end
@@ -268,6 +269,9 @@ local function createMovingDummy(position: Vector3, railDirection: Vector3): Dum
 			while tween.PlaybackState == Enum.PlaybackState.Playing do
 				head.Position = torso.Position + Vector3.new(0, 2, 0)
 				task.wait(0.03)
+			end
+		end)
+	end
 			end
 		end)
 	end

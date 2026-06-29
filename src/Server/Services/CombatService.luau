@@ -15,7 +15,8 @@ local WeaponDefinitions = require(Shared.Definitions.WeaponDefinitions)
 local Constants = require(Shared.Constants)
 
 local Server = ServerScriptService:WaitForChild("Server")
-local AimAssist = require(Server.Systems.AimAssist)
+local Systems = Server:WaitForChild("Systems")
+local AimAssist = require(Systems:WaitForChild("AimAssist"))
 
 ----------------------------------------------------------------------
 -- Types

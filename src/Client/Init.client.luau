@@ -25,7 +25,7 @@ end
 local platform = detectPlatform()
 
 -- Require all controllers (self-initializing on require)
-local Controllers = script.Parent.Controllers
+local Controllers = script.Parent:WaitForChild("Controllers")
 
 require(Controllers.InputController)
 require(Controllers.HUDController)
