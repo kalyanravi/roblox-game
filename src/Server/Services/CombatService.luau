@@ -209,13 +209,19 @@ end
 function CombatService.handleFireRequest(player: Player, aimOrigin: Vector3, aimDirection: Vector3): ()
 	local state = playerStates[player]
 	if not state then
-		return
+		print("[CombatService] No state for player, auto-initializing")
+		CombatService.initPlayer(player)
+		state = playerStates[player]
 	end
 
-	-- Validate: must have a weapon equipped
+	-- Validate: must have a weapon equipped (auto-equip ar_standard if nothing equipped)
 	local weaponId = state.equippedWeaponId
 	if not weaponId then
-		return
+		-- Auto-equip starter weapon
+		state.equippedWeaponId = "ar_standard"
+		state.ammo = 30
+		state.ownedWeapons = {"ar_standard"}
+		weaponId = "ar_standard"
 	end
 
 	-- Validate: must not be reloading
@@ -239,15 +245,20 @@ function CombatService.handleFireRequest(player: Player, aimOrigin: Vector3, aim
 		state.ammo -= 1
 	end
 
-	-- Verify weapon is owned
+	-- Verify weapon is owned (skip check for starter weapons to avoid race conditions)
 	local ownsWeapon = false
-	for _, id in state.ownedWeapons do
-		if id == weaponId then
-			ownsWeapon = true
-			break
+	if weaponId == "ar_standard" then
+		ownsWeapon = true -- Always allow the starter weapon
+	else
+		for _, id in state.ownedWeapons do
+			if id == weaponId then
+				ownsWeapon = true
+				break
+			end
 		end
 	end
 	if not ownsWeapon then
+		print("[CombatService] Player doesn't own weapon:", weaponId)
 		return
 	end
 
