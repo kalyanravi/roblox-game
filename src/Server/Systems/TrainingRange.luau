@@ -272,9 +272,6 @@ local function createMovingDummy(position: Vector3, railDirection: Vector3): Dum
 			end
 		end)
 	end
-			end
-		end)
-	end
 
 	-- Start movement
 	task.spawn(tweenToEnd)
