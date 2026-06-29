@@ -268,6 +268,25 @@ function CombatService.handleFireRequest(player: Player, aimOrigin: Vector3, aim
 	local direction = adjustedAimDirection.Unit * weaponDef.range
 	local rayResult = workspace:Raycast(aimOrigin, direction, raycastParams)
 
+	-- Create visible bullet tracer (yellow beam) regardless of hit
+	local endPos = if rayResult then rayResult.Position else (aimOrigin + direction)
+	task.spawn(function()
+		local tracer = Instance.new("Part")
+		tracer.Name = "BulletTracer"
+		tracer.Anchored = true
+		tracer.CanCollide = false
+		tracer.Material = Enum.Material.Neon
+		tracer.BrickColor = BrickColor.new("Bright yellow")
+		local dist = (endPos - aimOrigin).Magnitude
+		tracer.Size = Vector3.new(0.1, 0.1, dist)
+		tracer.CFrame = CFrame.lookAt(aimOrigin, endPos) * CFrame.new(0, 0, -dist / 2)
+		tracer.Parent = workspace
+		task.wait(0.08)
+		if tracer and tracer.Parent then
+			tracer:Destroy()
+		end
+	end)
+
 	if not rayResult then
 		return -- Missed, no hit
 	end

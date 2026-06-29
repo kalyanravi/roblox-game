@@ -42,8 +42,8 @@ local DUMMY_AUTO_HEAL_DELAY = 3
 local STATIONARY_DUMMY_COUNT = 5
 local MOVING_DUMMY_COUNT = 3
 
--- Training range area positioning (offset from world origin)
-local TRAINING_RANGE_ORIGIN = Vector3.new(500, 10, 500)
+-- Training range area positioning (inside the arena so players can see dummies)
+local TRAINING_RANGE_ORIGIN = Vector3.new(0, 1, -30)
 local LOBBY_SPAWN_POSITION = Vector3.new(0, 5, 0)
 
 -- Moving dummy rail parameters
