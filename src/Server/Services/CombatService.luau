@@ -289,14 +289,36 @@ function CombatService.handleFireRequest(player: Player, aimOrigin: Vector3, aim
 		tracer.Material = Enum.Material.Neon
 		tracer.BrickColor = BrickColor.new("Bright yellow")
 		local dist = (endPos - aimOrigin).Magnitude
-		tracer.Size = Vector3.new(0.1, 0.1, dist)
+		tracer.Size = Vector3.new(0.3, 0.3, dist)
 		tracer.CFrame = CFrame.lookAt(aimOrigin, endPos) * CFrame.new(0, 0, -dist / 2)
+		tracer.Transparency = 0
 		tracer.Parent = workspace
-		task.wait(0.08)
+		task.wait(0.3)
 		if tracer and tracer.Parent then
 			tracer:Destroy()
 		end
 	end)
+
+	-- Create hit spark effect at impact point
+	if rayResult then
+		task.spawn(function()
+			local spark = Instance.new("Part")
+			spark.Name = "HitSpark"
+			spark.Anchored = true
+			spark.CanCollide = false
+			spark.Material = Enum.Material.Neon
+			spark.BrickColor = BrickColor.new("Really red")
+			spark.Size = Vector3.new(1, 1, 1)
+			spark.Shape = Enum.PartType.Ball
+			spark.CFrame = CFrame.new(rayResult.Position)
+			spark.Transparency = 0
+			spark.Parent = workspace
+			task.wait(0.4)
+			if spark and spark.Parent then
+				spark:Destroy()
+			end
+		end)
+	end
 
 	if not rayResult then
 		return -- Missed, no hit
@@ -316,7 +338,17 @@ function CombatService.handleFireRequest(player: Player, aimOrigin: Vector3, aim
 
 	-- Find the player who owns this character
 	local targetPlayer: Player? = Players:GetPlayerFromCharacter(hitCharacter)
-	if not targetPlayer or targetPlayer == player then
+	
+	-- If it's not a player character, it might be a training dummy — damage it directly
+	if not targetPlayer then
+		-- Damage non-player humanoids (training dummies, NPCs)
+		local damage = CombatService.calculateDamage(weaponDef.damage, weaponDef.rarity, hitPart.Name == "Head")
+		hitHumanoid:TakeDamage(damage)
+		print("[CombatService] Hit dummy! Damage:", damage, "HP remaining:", hitHumanoid.Health)
+		return
+	end
+	
+	if targetPlayer == player then
 		return -- Can't damage yourself
 	end
 
