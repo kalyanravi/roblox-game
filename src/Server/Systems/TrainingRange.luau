@@ -39,8 +39,11 @@ type PlayerTrainingSession = {
 
 local DUMMY_HEALTH = 100
 local DUMMY_AUTO_HEAL_DELAY = 3
-local STATIONARY_DUMMY_COUNT = 5
-local MOVING_DUMMY_COUNT = 3
+-- Training range dummies disabled for multiplayer mode
+-- (Training Range is accessed separately via command, not auto-spawned)
+
+local STATIONARY_DUMMY_COUNT = 0
+local MOVING_DUMMY_COUNT = 0
 
 -- Training range area positioning (inside the arena so players can see dummies)
 local TRAINING_RANGE_ORIGIN = Vector3.new(0, 1, -30)
