@@ -22,6 +22,20 @@
       "Shared": {
         "$path": "src/Shared"
       }
+    },
+    "Workspace": {
+      "$className": "Workspace",
+      "Map": {
+        "$path": "src/Workspace"
+      }
+    },
+    "StarterPack": {
+      "$className": "StarterPack",
+      "$path": "src/StarterPack"
+    },
+    "ServerStorage": {
+      "$className": "ServerStorage",
+      "$path": "src/ServerStorage"
     }
   }
 }

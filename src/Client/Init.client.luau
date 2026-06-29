@@ -38,4 +38,10 @@ require(Controllers.ShopController)
 require(Controllers.ChestUIController)
 require(Controllers.PingUIController)
 
+-- Require gameplay modules (crosshair + weapon input)
+local Gameplay = script.Parent:WaitForChild("Gameplay")
+
+require(Gameplay:WaitForChild("CrosshairUI"))
+require(Gameplay:WaitForChild("WeaponInput"))
+
 print("[Shardstrike Client] All controllers initialized. Platform: " .. platform)

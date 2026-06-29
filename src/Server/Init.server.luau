@@ -122,6 +122,15 @@ require(Systems:WaitForChild("DailyLoginSystem"))
 require(Systems:WaitForChild("TrainingRange"))
 
 ----------------------------------------------------------------------
+-- Require gameplay modules (weapon setup + game loop)
+----------------------------------------------------------------------
+
+local Gameplay = script.Parent:WaitForChild("Gameplay")
+
+require(Gameplay:WaitForChild("WeaponSetup"))
+require(Gameplay:WaitForChild("GameLoop"))
+
+----------------------------------------------------------------------
 -- Initialization complete
 ----------------------------------------------------------------------
 
