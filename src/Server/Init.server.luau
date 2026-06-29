@@ -81,6 +81,14 @@ for _, name in remoteEventNames do
 end
 
 ----------------------------------------------------------------------
+-- Create BindableEvents (used for internal server-to-server communication)
+----------------------------------------------------------------------
+
+local KillRegistered = Instance.new("BindableEvent")
+KillRegistered.Name = "KillRegistered"
+KillRegistered.Parent = ReplicatedStorage
+
+----------------------------------------------------------------------
 -- Require all server services (order matters for dependencies)
 ----------------------------------------------------------------------
 

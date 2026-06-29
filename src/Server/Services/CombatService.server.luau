@@ -68,9 +68,7 @@ local DamageIndicatorRemote = getOrCreateRemoteEvent("DamageIndicator")
 -- BindableEvent for kill registration (other systems listen to this)
 ----------------------------------------------------------------------
 
-local KillRegisteredEvent = Instance.new("BindableEvent")
-KillRegisteredEvent.Name = "KillRegistered"
-KillRegisteredEvent.Parent = ReplicatedStorage
+local KillRegisteredEvent = ReplicatedStorage:WaitForChild("KillRegistered") :: BindableEvent
 
 ----------------------------------------------------------------------
 -- Module API
