@@ -17,9 +17,9 @@ local camera = workspace.CurrentCamera
 -- Remotes
 ----------------------------------------------------------------------
 
--- CombatService creates RemoteEvents at root of ReplicatedStorage
-local FireWeaponRemote = ReplicatedStorage:WaitForChild("FireWeapon") :: RemoteEvent
-local ReloadWeaponRemote = ReplicatedStorage:WaitForChild("ReloadWeapon") :: RemoteEvent
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local FireWeaponRemote = Remotes:WaitForChild("FireWeapon") :: RemoteEvent
+local ReloadWeaponRemote = Remotes:WaitForChild("ReloadWeapon") :: RemoteEvent
 
 ----------------------------------------------------------------------
 -- Module

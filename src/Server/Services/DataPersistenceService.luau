@@ -110,7 +110,19 @@ local KEY_PREFIX = "Player_"
 -- State
 ----------------------------------------------------------------------
 
-local playerDataStore = DataStoreService:GetDataStore(DATASTORE_NAME)
+local playerDataStore: DataStore? = nil
+local function getDataStore(): DataStore?
+	if playerDataStore then return playerDataStore end
+	local success, store = pcall(function()
+		return DataStoreService:GetDataStore(DATASTORE_NAME)
+	end)
+	if success then
+		playerDataStore = store
+	else
+		warn("[DataPersistenceService] DataStore not available (place may not be published): " .. tostring(store))
+	end
+	return playerDataStore
+end
 
 -- Cached player data in memory (loaded on join, updated in real-time by other services)
 local playerDataCache: { [Player]: PlayerSaveData } = {}
@@ -208,8 +220,13 @@ function DataPersistenceService.retryWithBackoff(key: string, data: PlayerSaveDa
 		return false
 	end
 
+	local store = getDataStore()
+	if not store then
+		return false
+	end
+
 	local success, err = pcall(function()
-		playerDataStore:SetAsync(key, data)
+		store:SetAsync(key, data)
 	end)
 
 	if success then
@@ -228,12 +245,18 @@ end
 --- Loads player data from DataStore with retry on failure (up to 3 retries).
 --- Returns nil only if all retries fail (caller should use default data).
 function DataPersistenceService.loadPlayerData(player: Player): PlayerSaveData?
+	local store = getDataStore()
+	if not store then
+		warn("[DataPersistenceService] DataStore not available, using default data")
+		return nil
+	end
+
 	local key = getPlayerKey(player)
 	local data: PlayerSaveData? = nil
 
 	for attempt = 1, MAX_DATASTORE_RETRIES do
 		local success, result = pcall(function()
-			return playerDataStore:GetAsync(key)
+			return store:GetAsync(key)
 		end)
 
 		if success then

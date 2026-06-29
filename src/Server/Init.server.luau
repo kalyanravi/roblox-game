@@ -92,7 +92,7 @@ KillRegistered.Parent = ReplicatedStorage
 -- Require all server services (order matters for dependencies)
 ----------------------------------------------------------------------
 
-local Services = script.Parent:WaitForChild("Services")
+local Services = script:WaitForChild("Services")
 
 require(Services:WaitForChild("DataPersistenceService"))
 require(Services:WaitForChild("EconomyService"))
@@ -107,7 +107,7 @@ require(Services:WaitForChild("MatchmakingService"))
 -- Require all server systems
 ----------------------------------------------------------------------
 
-local Systems = script.Parent:WaitForChild("Systems")
+local Systems = script:WaitForChild("Systems")
 
 require(Systems:WaitForChild("KillStreakManager"))
 require(Systems:WaitForChild("SpawnSystem"))
@@ -125,7 +125,7 @@ require(Systems:WaitForChild("TrainingRange"))
 -- Require gameplay modules (weapon setup + game loop)
 ----------------------------------------------------------------------
 
-local Gameplay = script.Parent:WaitForChild("Gameplay")
+local Gameplay = script:WaitForChild("Gameplay")
 
 require(Gameplay:WaitForChild("WeaponSetup"))
 require(Gameplay:WaitForChild("GameLoop"))
