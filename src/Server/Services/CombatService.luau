@@ -220,7 +220,7 @@ function CombatService.handleFireRequest(player: Player, aimOrigin: Vector3, aim
 		-- Auto-equip starter weapon
 		state.equippedWeaponId = "ar_standard"
 		state.ammo = 30
-		state.ownedWeapons = {"ar_standard"}
+		state.ownedWeapons = {"ar_standard", "sg_pump", "rev_sixshooter"}
 		weaponId = "ar_standard"
 	end
 

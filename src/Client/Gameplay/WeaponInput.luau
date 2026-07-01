@@ -142,20 +142,20 @@ local toolEquipped = false
 local function onCharacterAdded(character: Model)
 	-- Watch for tool equip/unequip
 	character.ChildAdded:Connect(function(child: Instance)
-		if child:IsA("Tool") and child.Name == "Assault Rifle" then
+		if child:IsA("Tool") then
 			toolEquipped = true
 		end
 	end)
 
 	character.ChildRemoved:Connect(function(child: Instance)
-		if child:IsA("Tool") and child.Name == "Assault Rifle" then
+		if child:IsA("Tool") then
 			toolEquipped = false
 		end
 	end)
 
 	-- Check if tool is already equipped
 	for _, child in character:GetChildren() do
-		if child:IsA("Tool") and child.Name == "Assault Rifle" then
+		if child:IsA("Tool") then
 			toolEquipped = true
 		end
 	end

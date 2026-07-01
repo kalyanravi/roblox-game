@@ -21,9 +21,11 @@ local WeaponDefinitions = require(Shared:WaitForChild("Definitions"):WaitForChil
 -- Constants
 ----------------------------------------------------------------------
 
-local WEAPON_ID = "ar_standard"
-local WEAPON_DEF = WeaponDefinitions.getWeapon(WEAPON_ID)
-local FIRE_RATE = if WEAPON_DEF then (1 / WEAPON_DEF.fireRate) else 0.125
+local STARTER_WEAPONS = {
+	{ id = "ar_standard", name = "Assault Rifle", color = Color3.fromRGB(50, 50, 50), size = Vector3.new(0.4, 0.8, 2.5) },
+	{ id = "sg_pump", name = "Pump Shotgun", color = Color3.fromRGB(80, 50, 20), size = Vector3.new(0.5, 0.7, 2.0) },
+	{ id = "rev_sixshooter", name = "Six Shooter", color = Color3.fromRGB(120, 120, 120), size = Vector3.new(0.3, 0.6, 1.2) },
+}
 
 ----------------------------------------------------------------------
 -- Module
@@ -32,17 +34,26 @@ local FIRE_RATE = if WEAPON_DEF then (1 / WEAPON_DEF.fireRate) else 0.125
 local WeaponSetup = {}
 
 --[[
-	Creates a Tool instance representing the Assault Rifle.
+	Creates a Tool instance for a weapon.
 ]]
-local function createWeaponTool(): Tool
+local function createWeaponTool(weaponInfo: {id: string, name: string, color: Color3, size: Vector3}): Tool
 	local tool = Instance.new("Tool")
-	tool.Name = "Assault Rifle"
+	tool.Name = weaponInfo.name
 	tool.RequiresHandle = true
 	tool.CanBeDropped = false
 
-	-- Create handle (small black box representing the gun)
+	-- Create handle with weapon-specific color and size
 	local handle = Instance.new("Part")
 	handle.Name = "Handle"
+	handle.Size = weaponInfo.size
+	handle.Color = weaponInfo.color
+	handle.Material = Enum.Material.SmoothPlastic
+	handle.CanCollide = false
+	handle.Massless = true
+	handle.Parent = tool
+
+	return tool
+end
 	handle.Size = Vector3.new(0.4, 0.8, 2.5)
 	handle.BrickColor = BrickColor.new("Black")
 	handle.Material = Enum.Material.SmoothPlastic
@@ -54,7 +65,7 @@ local function createWeaponTool(): Tool
 end
 
 --[[
-	Sets up a weapon tool for a specific player character.
+	Sets up all starter weapons for a specific player character.
 ]]
 local function setupWeaponForCharacter(player: Player, character: Model)
 	-- Small delay to ensure character is fully loaded
@@ -73,53 +84,29 @@ local function setupWeaponForCharacter(player: Player, character: Model)
 
 	-- Remove any existing weapon tools
 	for _, child in backpack:GetChildren() do
-		if child:IsA("Tool") and child.Name == "Assault Rifle" then
+		if child:IsA("Tool") then
 			child:Destroy()
 		end
 	end
-	-- Also check equipped tools on character
 	for _, child in character:GetChildren() do
-		if child:IsA("Tool") and child.Name == "Assault Rifle" then
+		if child:IsA("Tool") then
 			child:Destroy()
 		end
 	end
 
-	-- Create new weapon tool
-	local tool = createWeaponTool()
+	-- Create all starter weapon tools
+	local ownedIds = {}
+	for _, weaponInfo in STARTER_WEAPONS do
+		local tool = createWeaponTool(weaponInfo)
+		tool.Parent = backpack
+		table.insert(ownedIds, weaponInfo.id)
+	end
 
-	-- Track last fire time for rate limiting
-	local lastFireTime = 0
-
-	-- Wire Tool.Activated: fires the weapon toward where player is looking
-	tool.Activated:Connect(function()
-		local now = os.clock()
-		if now - lastFireTime < FIRE_RATE then
-			return
-		end
-		lastFireTime = now
-
-		-- Get camera direction from player's character head position
-		local head = character:FindFirstChild("Head") :: BasePart?
-		local humanoidRootPart = character:FindFirstChild("HumanoidRootPart") :: BasePart?
-		if not humanoidRootPart then
-			return
-		end
-
-		-- Use HumanoidRootPart CFrame as aim origin; direction will come from client
-		-- But since this is server-side tool activation, we fire the remote from here
-		-- The client will handle sending proper aim data via FireWeapon remote
-	end)
-
-	-- Put tool in backpack
-	tool.Parent = backpack
-
-	-- Server-side: equip weapon in CombatService
-	-- First ensure the player "owns" the starter weapon
+	-- Server-side: register weapons in CombatService
 	local state = CombatService.getPlayerState(player)
 	if state then
-		-- Grant the starter weapon
-		CombatService.setOwnedWeapons(player, { WEAPON_ID })
-		CombatService.equipWeapon(player, WEAPON_ID)
+		CombatService.setOwnedWeapons(player, ownedIds)
+		CombatService.equipWeapon(player, "ar_standard")
 	end
 end
 
