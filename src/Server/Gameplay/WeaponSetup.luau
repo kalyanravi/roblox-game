@@ -54,15 +54,6 @@ local function createWeaponTool(weaponInfo: {id: string, name: string, color: Co
 
 	return tool
 end
-	handle.Size = Vector3.new(0.4, 0.8, 2.5)
-	handle.BrickColor = BrickColor.new("Black")
-	handle.Material = Enum.Material.SmoothPlastic
-	handle.CanCollide = false
-	handle.Massless = true
-	handle.Parent = tool
-
-	return tool
-end
 
 --[[
 	Sets up all starter weapons for a specific player character.
