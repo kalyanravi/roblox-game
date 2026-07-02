@@ -21,10 +21,12 @@ local WeaponDefinitions = require(Shared:WaitForChild("Definitions"):WaitForChil
 -- Constants
 ----------------------------------------------------------------------
 
+local InsertService = game:GetService("InsertService")
+
 local STARTER_WEAPONS = {
-	{ id = "ar_standard", name = "Assault Rifle", color = Color3.fromRGB(50, 50, 50), size = Vector3.new(0.4, 0.8, 2.5) },
-	{ id = "sg_pump", name = "Pump Shotgun", color = Color3.fromRGB(80, 50, 20), size = Vector3.new(0.5, 0.7, 2.0) },
-	{ id = "rev_sixshooter", name = "Six Shooter", color = Color3.fromRGB(120, 120, 120), size = Vector3.new(0.3, 0.6, 1.2) },
+	{ id = "ar_standard", name = "Assault Rifle", assetId = 14565207244 },
+	{ id = "sg_pump", name = "Pump Shotgun", assetId = 2374456368 },
+	{ id = "rev_sixshooter", name = "Six Shooter", assetId = 16601591576 },
 }
 
 ----------------------------------------------------------------------
@@ -34,23 +36,82 @@ local STARTER_WEAPONS = {
 local WeaponSetup = {}
 
 --[[
-	Creates a Tool instance for a weapon.
+	Creates a Tool instance for a weapon using a Roblox model asset.
+	Falls back to a placeholder Part if the model fails to load.
 ]]
-local function createWeaponTool(weaponInfo: {id: string, name: string, color: Color3, size: Vector3}): Tool
+local function createWeaponTool(weaponInfo: {id: string, name: string, assetId: number}): Tool
 	local tool = Instance.new("Tool")
 	tool.Name = weaponInfo.name
 	tool.RequiresHandle = true
 	tool.CanBeDropped = false
 
-	-- Create handle with weapon-specific color and size
-	local handle = Instance.new("Part")
-	handle.Name = "Handle"
-	handle.Size = weaponInfo.size
-	handle.Color = weaponInfo.color
-	handle.Material = Enum.Material.SmoothPlastic
-	handle.CanCollide = false
-	handle.Massless = true
-	handle.Parent = tool
+	-- Try to load the real model from Roblox
+	local success, model = pcall(function()
+		return InsertService:LoadAsset(weaponInfo.assetId)
+	end)
+
+	if success and model then
+		-- Find the first BasePart or MeshPart in the model to use as Handle
+		local handle: BasePart? = nil
+
+		-- Look for a part named "Handle" first
+		handle = model:FindFirstChild("Handle", true) :: BasePart?
+
+		-- If no Handle found, find the first BasePart
+		if not handle then
+			for _, desc in model:GetDescendants() do
+				if desc:IsA("BasePart") then
+					handle = desc :: BasePart
+					break
+				end
+			end
+		end
+
+		if handle then
+			handle.Name = "Handle"
+			handle.CanCollide = false
+			handle.Massless = true
+			handle.Parent = tool
+
+			-- Move any other parts in the model as children of handle (welded)
+			for _, desc in model:GetDescendants() do
+				if desc:IsA("BasePart") and desc ~= handle then
+					local weld = Instance.new("WeldConstraint")
+					weld.Part0 = handle
+					weld.Part1 = desc
+					weld.Parent = handle
+					desc.CanCollide = false
+					desc.Massless = true
+					desc.Anchored = false
+					desc.Parent = tool
+				end
+			end
+		else
+			-- No parts found, create fallback
+			local fallback = Instance.new("Part")
+			fallback.Name = "Handle"
+			fallback.Size = Vector3.new(0.4, 0.8, 2.5)
+			fallback.Color = Color3.fromRGB(50, 50, 50)
+			fallback.Material = Enum.Material.SmoothPlastic
+			fallback.CanCollide = false
+			fallback.Massless = true
+			fallback.Parent = tool
+		end
+
+		-- Clean up the container model
+		model:Destroy()
+	else
+		-- Failed to load asset, create placeholder
+		warn("[WeaponSetup] Failed to load asset " .. tostring(weaponInfo.assetId) .. " for " .. weaponInfo.name)
+		local fallback = Instance.new("Part")
+		fallback.Name = "Handle"
+		fallback.Size = Vector3.new(0.4, 0.8, 2.5)
+		fallback.Color = Color3.fromRGB(50, 50, 50)
+		fallback.Material = Enum.Material.SmoothPlastic
+		fallback.CanCollide = false
+		fallback.Massless = true
+		fallback.Parent = tool
+	end
 
 	return tool
 end
